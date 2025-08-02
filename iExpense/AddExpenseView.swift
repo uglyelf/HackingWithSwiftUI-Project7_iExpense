@@ -11,6 +11,7 @@ struct AddExpenseView: View {
     @State private var name = ""
     @State private var type = ExpenseType.personal
     @State private var amount = 0.0
+//    @Binding var path: [Int]
     
     @Environment(\.dismiss) var dismiss
     
@@ -32,12 +33,21 @@ struct AddExpenseView: View {
             }
             .navigationTitle("Add new expense")
             .toolbar {
-                Button("Save") {
-                    let item = ExpenseItem(name: name, type: type, amount: amount)
-                    expenses.items.append(item)
-                    dismiss()
+                ToolbarItemGroup {
+                    if !name.isEmpty && amount > 0 {
+                        Button("Save") {
+                            let item = ExpenseItem(name: name, type: type, amount: amount)
+                            expenses.items.append(item)
+                            dismiss()
+                        }
+                    }
+                    
+                    Button("Cancel") {
+                        dismiss()
+                    }
                 }
             }
+            .navigationBarBackButtonHidden()
         }
     }
 }

@@ -12,7 +12,8 @@ import Observation
 struct ContentView: View {
     @State private var expenses = Expenses()
     
-    @State private var showingAddExpense = false
+    @State private var path = [String]()
+//    @State private var showingAddExpense = false
     
     var body: some View {
         NavigationStack {
@@ -53,14 +54,21 @@ struct ContentView: View {
             }
             .navigationTitle("iExpense")
             .toolbar {
-                Button("Add Expense", systemImage: "plus") {
-                   showingAddExpense = true
+                NavigationLink {
+                    AddExpenseView(expenses: expenses)
+                } label: {
+                    Image(systemName: "plus")
                 }
+//                Button("Add Expense", systemImage: "plus") {
+//                    NavigationLink("Add Expense", ) {
+//                        
+//                    }
+//                }
             }
         }
-        .sheet(isPresented: $showingAddExpense) {
-            AddExpenseView(expenses: expenses)
-        }
+//        .sheet(isPresented: $showingAddExpense) {
+//            AddExpenseView(expenses: expenses)
+//        }
     }
 
     func removePersonalExpense(at offsets: IndexSet) {
