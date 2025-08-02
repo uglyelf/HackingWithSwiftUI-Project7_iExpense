@@ -11,7 +11,8 @@ struct AddExpenseView: View {
     @State private var name = ""
     @State private var type = ExpenseType.personal
     @State private var amount = 0.0
-//    @Binding var path: [Int]
+    
+    @State private var editNameViaTitle = false
     
     @Environment(\.dismiss) var dismiss
     
@@ -20,7 +21,9 @@ struct AddExpenseView: View {
     var body: some View {
         NavigationStack {
             Form {
-                TextField("Name", text: $name)
+                if !editNameViaTitle {
+                    TextField("Name", text: $name)
+                }
                 
                 Picker("Type", selection: $type) {
                     ForEach(ExpenseType.allCases) { type in
@@ -31,9 +34,16 @@ struct AddExpenseView: View {
                 TextField("Amount", value: $amount, format: .currency(code: "USD"))
                     .keyboardType(.decimalPad)
             }
-            .navigationTitle("Add new expense")
+            // See the extension at the bottom of the file for explanation
+            .if(editNameViaTitle) {
+                $0.navigationTitle($name)
+            }
+            .if(!editNameViaTitle) {
+                $0.navigationTitle("Add New Expense")
+            }
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItemGroup {
+                ToolbarItem {
                     if !name.isEmpty && amount > 0 {
                         Button("Save") {
                             let item = ExpenseItem(name: name, type: type, amount: amount)
@@ -41,9 +51,17 @@ struct AddExpenseView: View {
                             dismiss()
                         }
                     }
-                    
+                }
+                
+                ToolbarItem {
                     Button("Cancel") {
                         dismiss()
+                    }
+                }
+                
+                ToolbarItem(placement: .topBarLeading) {
+                    Menu("Settings") {
+                        Toggle("Edit Name by Title", isOn: $editNameViaTitle)
                     }
                 }
             }
@@ -54,4 +72,24 @@ struct AddExpenseView: View {
 
 #Preview {
     AddExpenseView(expenses: Expenses())
+}
+
+/*
+ Why the kluge? \
+ Day 46 Challenge 2 asks you to edit this project so users can rename the expense through the title
+ Akward turtle.
+ So I wanted to make it so users could switch between a dedicated name field and the title by choice.
+ 
+ This is a bit of a cargo cult, from the google AI overlords. I'd love to read more into how "transform"
+ returns the View to modify with the um... modifier. 
+ */
+extension View {
+    @ViewBuilder
+    func `if`<T: View>(_ condition: Bool, transform: (Self) -> T) -> some View {
+        if condition {
+            transform(self)
+        } else {
+            self
+        }
+    }
 }
