@@ -8,10 +8,11 @@
 import SwiftUI
 
 struct AddExpenseView: View {
-    @State private var name = ""
+    @State private var name = "Edit Name"
     @State private var type = ExpenseType.personal
     @State private var amount = 0.0
     
+    @State private var isPopoverPresented = false
     @State private var editNameViaTitle = false
     
     @Environment(\.dismiss) var dismiss
@@ -44,7 +45,7 @@ struct AddExpenseView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem {
-                    if !name.isEmpty && amount > 0 {
+                    if !name.isEmpty && name != "Edit Name" && amount > 0 {
                         Button("Save") {
                             let item = ExpenseItem(name: name, type: type, amount: amount)
                             expenses.items.append(item)
@@ -59,10 +60,17 @@ struct AddExpenseView: View {
                     }
                 }
                 
-                ToolbarItem(placement: .topBarLeading) {
-                    Menu("Settings") {
-                        Toggle("Edit Name by Title", isOn: $editNameViaTitle)
-                    }
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Image(systemName: "ellipsis.circle")
+                        .font(.title3)
+                        .onTapGesture {
+                            isPopoverPresented.toggle()
+                        }
+                        .popover(isPresented: $isPopoverPresented) {
+                            Toggle("Edit Name by Title", isOn: $editNameViaTitle)
+                                .presentationCompactAdaptation((.popover))
+                                .preferredColorScheme(.dark)
+                        }
                 }
             }
             .navigationBarBackButtonHidden()
